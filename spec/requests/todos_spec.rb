@@ -5,13 +5,15 @@ RSpec.describe 'Todos API', type: :request do
 
   # let is lazy-evaluated
   # let! forces methods invocation before each example
-  let!(:todos) { create_list(:todo, 10) }
+  let(:user) { create(:user) }
+  let!(:todos) { create_list(:todo, 10, created_by: user.id) }
   let(:todo_id) { todos.first.id }
+  let(:headers) { valid_headers }
 
   # Test suite for GET /todos
   describe 'GET /todos' do
     # make HTTP get request before each example
-    before { get '/todos'}
+    before { get '/todos', params: {}, headers: headers }
 
     it 'returns todos' do
       expect(json).not_to be_empty
@@ -24,7 +26,7 @@ RSpec.describe 'Todos API', type: :request do
 
   describe 'GET /todos/:id' do
     # make HTTP get request before each example
-    before { get "/todos/#{todo_id}" }
+    before { get "/todos/#{todo_id}", params: {}, headers: headers }
 
     context 'when the record exists' do
       it 'returns the todo' do
@@ -51,18 +53,23 @@ RSpec.describe 'Todos API', type: :request do
   end
 
   describe 'POST /todos' do
-    let (:valid_attributes) { { title: 'Learn Elm', created_by: '1' } }
+    let (:valid_attributes) do
+      {
+        title: 'Learn Elm',
+        created_by: user.id.to_s
+      }.to_json
+    end
 
     context 'when the request is valid' do
       # make post request before each example
-      before { post '/todos', params: valid_attributes }
+      before { post '/todos', params: valid_attributes, headers: headers }
       it 'returns status 201' do
         expect(response).to have_http_status 201
       end
     end
 
     context 'when the request is invalid' do
-      before { post '/todos', params: { title: '' } }
+      before { post '/todos', params: { title: nil }.to_json, headers: headers }
 
       it 'returns status code 422' do
         expect(response).to have_http_status 422
@@ -71,9 +78,9 @@ RSpec.describe 'Todos API', type: :request do
   end
 
   describe 'PUT /todos/:id' do
-    let(:valid_attributes) { { title: 'Shopping' } }
+    let(:valid_attributes) { { title: 'Shopping' }.to_json }
     context 'when the request is valid' do
-      before { put "/todos/#{todo_id}", params: valid_attributes}
+      before { put "/todos/#{todo_id}", params: valid_attributes, headers: headers}
 
       it 'returns status code 204' do
         expect(response).to have_http_status 204
@@ -86,7 +93,7 @@ RSpec.describe 'Todos API', type: :request do
   end
 
   describe 'DELETE /todos/:id' do
-    before { delete "/todos/#{todo_id}"}
+    before { delete "/todos/#{todo_id}", params: {}, headers: headers }
 
     it 'returns status code 204' do
       expect(response).to have_http_status 204

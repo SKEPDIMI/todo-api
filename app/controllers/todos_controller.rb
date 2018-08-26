@@ -3,17 +3,29 @@ class TodosController < ApplicationController
 
   # GET /todos
   def index
-    @todos = Todo.all
+    @todos = current_user.todos
     json_response(@todos)
   end
   # POST /todos
   def create
-    @todo = Todo.create!(todo_params)
-    json_response(@todo, :created)
+    # create! instead of create
+    # the model will raise an exception ActiveRecord::RecordInvalid
+    # this way we avoid deep nested if statements in the controller
+    # we can then rescue from the ExceptionHandler module (controllers/concerns/exception_handler)
+    @todo = current_user.todos.create!(todo_params)
+    if @todo
+      json_response(@todo, :created)
+    else
+      json_response(@todo, :unprocessable_entity)
+    end
   end
   # GET /todos/:id
   def show
-    json_response(@todo)
+    if @todo
+      json_response(@todo)
+    else
+      json_response(@todo, :not_found)
+    end
   end
   def update
     @todo.update(todo_params)
@@ -27,7 +39,7 @@ class TodosController < ApplicationController
   private
   def todo_params
     # whitelist params
-    params.permit(:title, :created_by)
+    params.permit(:title)
   end
   def set_todo
     @todo = Todo.find(params[:id])
