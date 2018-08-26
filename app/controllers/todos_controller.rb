@@ -8,6 +8,10 @@ class TodosController < ApplicationController
   end
   # POST /todos
   def create
+    # create! instead of create
+    # the model will raise an exception ActiveRecord::RecordInvalid
+    # this way we avoid deep nested if statements in the controller
+    # we can then rescue from the ExceptionHandler module (controllers/concerns/exception_handler)
     @todo = Todo.create!(todo_params)
     json_response(@todo, :created)
   end
