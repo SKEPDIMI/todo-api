@@ -1,5 +1,7 @@
+# this singleton provides a wrapper for JWT
+
 class JsonWebToken
-  HMAC_SECRET = Rails.application.secrets.secret_key_base
+  HMAC_SECRET = TodosApi::Application.credentials.secret_key_base
 
   def self.encode(payload, exp = 30.seconds.from_now)
     payload[:exp] = exp
