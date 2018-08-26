@@ -4,7 +4,7 @@ class JsonWebToken
   HMAC_SECRET = TodosApi::Application.credentials.secret_key_base
 
   def self.encode(payload, exp = 30.seconds.from_now)
-    payload[:exp] = exp
+    payload[:exp] = exp.to_i
     JWT.encode(payload, HMAC_SECRET)
   end
 
