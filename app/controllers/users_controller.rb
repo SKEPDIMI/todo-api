@@ -1,4 +1,7 @@
 class UsersController < ApplicationController
+  # dont authorize user when creating one
+  skip_before_action :authorize_request, only: :create
+
   def create
     @user = User.create!(user_params)
     if @user.save
