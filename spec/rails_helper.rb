@@ -84,4 +84,6 @@ RSpec.configure do |config|
 
   # Use the request spec helper (spec/support/request_spec_helper.rb)
   config.include RequestSpecHelper, type: :request
+  # Use the request spec helper (spec/support/controller_spec_helper.rb)
+  config.include ControllerSpecHelper
 end
